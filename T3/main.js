@@ -4,7 +4,7 @@ import { TextureLoader } from 'three';
 import { createArena, createFloor, levelcheck, updateMovingWalls } from './level1.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { initRenderer, setDefaultMaterial, initDefaultBasicLight } from "../libs/util/util.js";
-import { keyboardUpdate, isOrbitControlsActive, initialCameraPosition, godMode } from './keyboard.js';
+import { keyboardUpdate, isOrbitControlsActive, initialCameraPosition, godMode, isMobile } from './keyboard.js';
 import { t1_hits, update, updateHealthBar } from './shooting.js';
 import { tank1, tank2, tank3 } from './tank.js';
 import { resetl } from './reset.js';
@@ -82,12 +82,6 @@ function init(level) {
         scene.add(directionalLight);
     }
 
-    // Listen for window size changes
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
     createArena(200, scene, level);
     createFloor(200, scene, level);
 
@@ -121,6 +115,86 @@ function handleZoom(event) {
 
 
 window.addEventListener('wheel', handleZoom);
+
+function handleResize() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Adjust health bars for mobile
+    const t1Health = document.getElementById('t1-health-container');
+    const t2Health = document.getElementById('t2-health-container');
+    
+    if (isPortrait) {
+        t1Health.style.left = '10px';  // Adjust positioning for portrait
+        t2Health.style.right = '10px'; 
+    } else {
+        t1Health.style.left = '10px';  // Adjust for landscape
+        t2Health.style.right = '10px';
+    }
+}
+
+window.addEventListener('resize', handleResize);
+
+// Joystick handling for mobile
+function addJoysticks() {
+    joystickL = nipplejs.create({
+        zone: document.getElementById('joystickWrapper1'),
+        mode: 'static',
+        position: { top: '50%', left: '20%' },
+        color: 'blue',
+        size: 150, // Smaller size for mobile
+        multitouch: true,
+        restJoystick: true,
+    });
+
+    joystickL.on('move', function (evt, data) {
+        const forward = data.vector.y;
+        const turn = data.vector.x;
+        fwdValue = bkdValue = lftValue = rgtValue = 0;
+
+        if (forward > 0) fwdValue = Math.abs(forward);  // Move forward
+        else if (forward < 0) bkdValue = Math.abs(forward);  // Move backward
+
+        if (turn > 0) rgtValue = Math.abs(turn);  // Rotate right
+        else if (turn < 0) lftValue = Math.abs(turn);  // Rotate left
+    });
+
+    joystickL.on('end', function () {
+        fwdValue = bkdValue = lftValue = rgtValue = 0; // Reset movement when joystick is released
+    });
+
+    joystickR = nipplejs.create({
+        zone: document.getElementById('joystickWrapper2'),
+        mode: 'static',
+        lockY: true,
+        position: { top: '50%', right: '20%' },
+        color: 'green',
+        size: 150, // Adjust joystick size for mobile
+        multitouch: true,
+        restJoystick: true,
+    });
+
+    joystickR.on('move', function (evt, data) {
+        // Implement additional right joystick actions if necessary
+    });
+}
+
+function addShootButton() {
+    shootButton = document.getElementById('A');
+    shootButton.addEventListener('mousedown', () => shooting = true);
+    shootButton.addEventListener('mouseup', () => shooting = false);
+    shootButton.addEventListener('touchstart', () => shooting = true);
+    shootButton.addEventListener('touchend', () => shooting = false);
+}
+
+// Initialize joysticks and buttons for mobile
+if (isMobile) {
+    addJoysticks();
+    addShootButton();
+}
 
 // Function to render the scene
 function render() {
