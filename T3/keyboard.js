@@ -12,6 +12,11 @@ export let isOrbitControlsActive = false;
 export let godMode = false;
 export let initialCameraPosition = new THREE.Vector3(0, 200, 30);
 
+let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+let joystickL, joystickR, shootButton;
+let fwdValue = 0, bkdValue = 0, lftValue = 0, rgtValue = 0, shooting = false;
+
+
 function keyboardUpdate() {
   keyboard.update();
   var angle = THREE.MathUtils.degToRad(5);
@@ -69,6 +74,57 @@ function keyboardUpdate() {
     resetLevel(3); // Reset and switch to level 2
   }
 
+  function addJoysticks() {
+    joystickL = nipplejs.create({
+      zone: document.getElementById('joystickWrapper1'),
+      mode: 'static',
+      position: { top: '50%', left: '20%' },
+      color: 'blue',
+      size: 200,
+      multitouch: true,
+      restJoystick: true
+    });
+  
+    joystickL.on('move', function(evt, data) {
+      const forward = data.vector.y;
+      const turn = data.vector.x;
+      fwdValue = bkdValue = lftValue = rgtValue = 0;
+  
+      if (forward > 0) fwdValue = Math.abs(forward);
+      else if (forward < 0) bkdValue = Math.abs(forward);
+  
+      if (turn > 0) rgtValue = Math.abs(turn);
+      else if (turn < 0) lftValue = Math.abs(turn);
+    });
+  
+    joystickL.on('end', function() {
+      fwdValue = bkdValue = lftValue = rgtValue = 0;
+    });
+  
+    joystickR = nipplejs.create({
+      zone: document.getElementById('joystickWrapper2'),
+      mode: 'static',
+      lockY: true,
+      position: { top: '50%', right: '20%' },
+      color: 'green',
+      size: 200,
+      multitouch: true,
+      restJoystick: true
+    });
+  
+    joystickR.on('move', function(evt, data) {
+      // Implement scaling or other right joystick actions if necessary
+    });
+  }
+  
+  function addShootButton() {
+    shootButton = document.getElementById('A');
+    shootButton.addEventListener('mousedown', () => shooting = true);
+    shootButton.addEventListener('mouseup', () => shooting = false);
+    shootButton.addEventListener('touchstart', () => shooting = true);
+    shootButton.addEventListener('touchend', () => shooting = false);
+  }
+
   tank1BB.setFromObject(tank1);
   tank2BB.setFromObject(tank2);
   if(selectedLevel === 2 || selectedLevel === 3){
@@ -80,6 +136,11 @@ function keyboardUpdate() {
 
   let tankDirection = new THREE.Vector3();
   tank1.getWorldDirection(tankDirection);
+
+  if (isMobile) {
+    addJoysticks();
+    addShootButton();
+  }
 
   // Check for collisions with walls
   for (let i = 0; i < wallBoxes.length; i++) {
