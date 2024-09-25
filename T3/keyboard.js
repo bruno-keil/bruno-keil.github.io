@@ -11,8 +11,6 @@ var keyboard = new KeyboardState();
 export let isOrbitControlsActive = false;
 export let godMode = false;
 export let initialCameraPosition = new THREE.Vector3(0, 200, 30);
-let shooting = false;
-let fwdValue, bkdValue, lftValue, rgtValue;
 
 export let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -26,12 +24,6 @@ function keyboardUpdate() {
   var oldPosition3 = tank4.position.clone();
 
   // Tank 1 movement
-  if (isMobile) {
-    if (fwdValue > 0) tank1.translateZ(-0.7 * fwdValue);  // Forward
-    if (bkdValue > 0) tank1.translateZ(0.7 * bkdValue);   // Backward
-    if (lftValue > 0) tank1.rotateY(angle * lftValue);    // Turn left
-    if (rgtValue > 0) tank1.rotateY(-angle * rgtValue);   // Turn right
-}
   if(selectedLevel === 1){
     if (keyboard.pressed("W")) tank1.translateZ(-0.7);
     if (keyboard.pressed("S")) tank1.translateZ(0.7);
@@ -46,7 +38,7 @@ function keyboardUpdate() {
         }
   if (keyboard.pressed("A")) tank1.rotateY(angle);
   if (keyboard.pressed("D")) tank1.rotateY(-angle);
-  if (keyboard.down("space") || shooting) shoot(tank1, scene, wallBoxes);
+  if (keyboard.down("space")) shoot(tank1, scene, wallBoxes);
 
   // Tank 2 movement
   if(selectedLevel === 1){
@@ -148,4 +140,4 @@ function keyboardUpdate() {
 }
 }
 
-export { keyboardUpdate, shooting, fwdValue, rgtValue, lftValue, bkdValue};
+export { keyboardUpdate };
