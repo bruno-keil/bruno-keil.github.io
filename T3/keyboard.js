@@ -12,8 +12,6 @@ export let isOrbitControlsActive = false;
 export let godMode = false;
 export let initialCameraPosition = new THREE.Vector3(0, 200, 30);
 
-export let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
 function keyboardUpdate() {
   keyboard.update();
   var angle = THREE.MathUtils.degToRad(5);

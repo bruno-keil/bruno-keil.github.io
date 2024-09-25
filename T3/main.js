@@ -238,18 +238,6 @@ function resetLevel(level) {
     resetl(); // Reset game state
 }
 
-function onButtonPressed() {
-    const loadingScreen = document.getElementById('loading-screen');
-    loadingScreen.classList.add('fade-out');
-    loadingScreen.addEventListener('transitionend', (e) => {
-        const element = e.target;
-        element.remove();  
-    });
-
-    // Call the init function and pass the level (you can get level dynamically)
-    init(selectedLevel);
-}
-
 // Automatically start the game at the selected level
 document.getElementById('myBtn').addEventListener('click', onButtonPressed);
 
