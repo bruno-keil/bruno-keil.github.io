@@ -232,6 +232,18 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+function onButtonPressed() {
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.classList.add('fade-out');
+    loadingScreen.addEventListener('transitionend', (e) => {
+        const element = e.target;
+        element.remove();  
+    });
+
+    // Call the init function and pass the level (you can get level dynamically)
+    init(selectedLevel);
+}
+
 // Function to reset and reinitialize the level
 function resetLevel(level) {
     selectedLevel = level;
