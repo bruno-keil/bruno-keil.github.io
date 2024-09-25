@@ -4,7 +4,7 @@ import { TextureLoader } from 'three';
 import { createArena, createFloor, levelcheck, updateMovingWalls } from './level1.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { initRenderer, setDefaultMaterial, initDefaultBasicLight } from "../libs/util/util.js";
-import { keyboardUpdate, isOrbitControlsActive, initialCameraPosition, godMode, isMobile } from './keyboard.js';
+import { keyboardUpdate, isOrbitControlsActive, initialCameraPosition, godMode, isMobile, shooting, fwdValue, bkdValue, lftValue, rgtValue } from './keyboard.js';
 import { t1_hits, update, updateHealthBar } from './shooting.js';
 import { tank1, tank2, tank3 } from './tank.js';
 import { resetl } from './reset.js';
