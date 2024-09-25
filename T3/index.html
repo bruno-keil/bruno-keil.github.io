@@ -2,6 +2,7 @@
 <html>
    <head>
       <title>T2</title>
+
       <link rel="shortcut icon" href="../favicon.ico">
       <link rel="stylesheet" href="../html/resources/default.css">
       <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,153 +10,48 @@
       <style>
          /* Loading screen and button styling */
          #loading-screen {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+             position: fixed;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0, 0, 0, 0.85);
+             z-index: 9999;
+             display: flex;
+             justify-content: center;
+             align-items: center;
          }
-
+ 
          #loading-screen.fade-out {
-            transition: opacity 1s;
-            opacity: 0;
+             transition: opacity 1s;
+             opacity: 0;
          }
-
+ 
          #myBtn {
-            padding: 15px 30px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            cursor: pointer;
+             padding: 15px 30px;
+             background-color: #007bff;
+             color: white;
+             border: none;
+             border-radius: 5px;
+             font-size: 18px;
+             cursor: pointer;
          }
-
-         /* Joystick and Fire Button for mobile */
-         #joystick-container {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 100px;
-            height: 100px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            touch-action: none;
-         }
-
-         #joystick {
-            width: 50px;
-            height: 50px;
-            background-color: rgba(0, 123, 255, 0.8);
-            border-radius: 50%;
-            position: relative;
-            top: 25px;
-            left: 25px;
-         }
-
-         #fireBtn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 20px;
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 20px;
-         }
-
-         /* Hide joystick on desktop */
-         .mobile-controls {
-            display: none;
-         }
-
-         /* Show joystick on mobile */
-         @media (max-width: 768px) {
-            .mobile-controls {
-               display: block;
-            }
-         }
-      </style>
+     </style>
 
    </head>
+
    <body>
-      <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
-      <script type="importmap">
-         {"imports": {"three": "../build/three.module.js"}}
-      </script>
+      <!-- Import maps polyfill -- Remove this when import maps will be widely supported-->
+      <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>  
+      <script type="importmap"> 
+         {"imports": {"three": "../build/three.module.js"}} 
+      </script> 
+
+      <script src="../libs/other/nipplejs.js"></script>
 
       <div id="loading-screen">
          <button id="myBtn">Start Game</button>
+     </div>
+      <div id="webgl-output">     
+         <script type="module" src="main.js"></script>
       </div>
-
-      <div id="webgl-output"></div>
-
-      <!-- Joystick and Fire Button for mobile -->
-      <div id="joystick-container" class="mobile-controls">
-         <div id="joystick"></div>
-      </div>
-      <button id="fireBtn" class="mobile-controls">Shoot</button>
-
-      <script type="module" src="main.js"></script>
-      <script>
-         function isMobile() {
-            return /Mobi|Android/i.test(navigator.userAgent);
-         }
-
-         document.getElementById('myBtn').addEventListener('click', onButtonPressed);
-
-         // Joystick movement logic
-         let joystick = document.getElementById('joystick');
-         let joystickContainer = document.getElementById('joystick-container');
-         let startX, startY, deltaX, deltaY;
-
-         joystickContainer.addEventListener('touchstart', function(e) {
-            let touch = e.touches[0];
-            startX = touch.clientX;
-            startY = touch.clientY;
-         });
-
-         joystickContainer.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-            let touch = e.touches[0];
-            deltaX = touch.clientX - startX;
-            deltaY = touch.clientY - startY;
-
-            // Set joystick movement limits
-            let maxDistance = 50;
-            let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            if (distance > maxDistance) {
-               let ratio = maxDistance / distance;
-               deltaX *= ratio;
-               deltaY *= ratio;
-            }
-
-            joystick.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-
-            // Tank movement based on joystick direction
-            let angle = Math.atan2(deltaY, deltaX);
-            let distanceFactor = distance / maxDistance;
-
-            // Translate joystick movement to tank movement
-            if (distanceFactor > 0.3) {
-               let moveSpeed = 0.7 * distanceFactor;
-               tank1.translateX(moveSpeed * Math.cos(angle));
-               tank1.translateZ(-moveSpeed * Math.sin(angle));
-            }
-         });
-
-         joystickContainer.addEventListener('touchend', function(e) {
-            joystick.style.transform = 'translate(0, 0)';
-         });
-
-         // Fire button logic for mobile
-         document.getElementById('fireBtn').addEventListener('touchstart', function(e) {
-            shoot(tank1, scene, wallBoxes);
-         });
-      </script>
    </body>
 </html>
