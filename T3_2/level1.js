@@ -3,11 +3,10 @@ import { tank1, tank2, tank3, tank3BB, tank4, tank4BB } from './tank.js';
 import { cannon } from "./cannon.js";
 import { t1_hits, t2_hits, t3_hits } from "./shooting.js";
 import { selectedLevel } from "./main.js";
-import { music } from "./shooting.js";
 import { applyPowerUpEffect } from "./shooting.js";
 
 const textureLoader = new THREE.TextureLoader();
-
+let m;
 const wallTextureLevel1 = textureLoader.load('./textures/m-006.jpg'); // Texture for level 1 walls
 const wallTextureLevel2 = textureLoader.load('./textures/m-008.jpg'); // Texture for level 2 walls
 const floorTextureLevel1 = textureLoader.load('./textures/m-013.jpg'); // Texture for level 1 floor
@@ -29,7 +28,7 @@ let passageWallMaterial = new THREE.MeshLambertMaterial({ map: passageWallTextur
 const doorTexture = textureLoader.load('./textures/m-002.jpg'); // Door texture
 let doorMaterial = new THREE.MeshLambertMaterial({ map: doorTexture });
 
-let m;
+
 const wallBoxes = [];
 const walls = [];
 const doorBoxes = [];
@@ -183,13 +182,13 @@ for (let i = 0; i < matrix1.length; i++) {
 function createArena(size, scene, level) {
     if (level === 1) {
         m = matrix;
-        music();
+        
     } else if (level === 2) {
         m = matrix1;
-        music();
+        
     } else if (level === 3) {
         m = matrix2;
-        music();
+        
     }
 
     const cubeSize = size / m.length;

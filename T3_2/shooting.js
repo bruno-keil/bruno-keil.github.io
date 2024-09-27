@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { door1Boxes, doorBoxes, doors, wallBoxes } from './level1.js';
+import { doorBoxes, doors, wallBoxes } from './level1.js';
 import { tank1, tank1BB, tank2, tank2BB, tank3, tank3BB, tank4, tank4BB } from './tank.js';
 import { resetLevel, scene, selectedLevel } from './main.js';
 import { reset, resetl } from './reset.js';
@@ -7,6 +7,7 @@ import { cannonBB, cannon } from './cannon.js';
 import { Vector3 } from '../build/three.module.js';
 import { godMode } from './keyboard.js';
 import { doorsMove } from './doors.js';
+import { soundActive } from './keyboard.js';
 
 let shots = []; // Array to hold all shots
 
@@ -76,7 +77,7 @@ export function shoot(tank, scene) {
 
     // Add the shot to the array
     shots.push({ sphere, direction: shotDirection, tank, ricochets: 0 });
-    tankShotSound();
+    tankShotSound(soundActive);
 }
 
 export function update() {
@@ -118,90 +119,36 @@ export function update() {
                 break;
             }
         }
-        for (let i = 0; i < doorBoxes.length; i++) {
-            if (shotBB.intersectsBox(doorBoxes[i]) && shot.tank === cannon){
-                scene.remove(shot.sphere);
-                shots.splice(shots.indexOf(shot), 1);
-            }
-            if (shotBB.intersectsBox(doorBoxes[i])) {
-                if (shot.ricochets < 2) {
-                    shot.ricochets++;
-                    // Calculate the normal of the collision
-                    let normal = new THREE.Vector3();
-                    let diff = new THREE.Vector3().subVectors(shotBB.getCenter(new THREE.Vector3()), doorBoxes[i].getCenter(new THREE.Vector3()));
-                    if (Math.abs(diff.x) > Math.abs(diff.y) && Math.abs(diff.x) > Math.abs(diff.z)) {
-                        normal.set(Math.sign(diff.x), 0, 0);
-                    } else if (Math.abs(diff.y) > Math.abs(diff.z)) {
-                        normal.set(0, Math.sign(diff.y), 0);
-                    } else {
-                        normal.set(0, 0, Math.sign(diff.z));
-                    }
-                    // Reflect the shot direction based on the normal
-                    shot.direction.reflect(normal);
-                } else {
-                    scene.remove(shot.sphere);
-                    shots.splice(shots.indexOf(shot), 1);
-                }
-                break;
-            }
-        }
-        for (let i = 0; i < door1Boxes.length; i++) {
-            if (shotBB.intersectsBox(door1Boxes[i]) && shot.tank === cannon){
-                scene.remove(shot.sphere);
-                shots.splice(shots.indexOf(shot), 1);
-            }
-            if (shotBB.intersectsBox(door1Boxes[i])) {
-                if (shot.ricochets < 2) {
-                    shot.ricochets++;
-                    // Calculate the normal of the collision
-                    let normal = new THREE.Vector3();
-                    let diff = new THREE.Vector3().subVectors(shotBB.getCenter(new THREE.Vector3()), door1Boxes[i].getCenter(new THREE.Vector3()));
-                    if (Math.abs(diff.x) > Math.abs(diff.y) && Math.abs(diff.x) > Math.abs(diff.z)) {
-                        normal.set(Math.sign(diff.x), 0, 0);
-                    } else if (Math.abs(diff.y) > Math.abs(diff.z)) {
-                        normal.set(0, Math.sign(diff.y), 0);
-                    } else {
-                        normal.set(0, 0, Math.sign(diff.z));
-                    }
-                    // Reflect the shot direction based on the normal
-                    shot.direction.reflect(normal);
-                } else {
-                    scene.remove(shot.sphere);
-                    shots.splice(shots.indexOf(shot), 1);
-                }
-                break;
-            }
-        }
 
         if (shotBB.intersectsBox(tank1BB) && shot.tank !== tank1 && godMode === false) {
             t1_hits++;
-            hitPlayerSound(tank1);
+            hitPlayerSound(tank1,soundActive);
             updateHealthBar('t1', t1_hits);
             scene.remove(shot.sphere);
             shots.splice(shots.indexOf(shot), 1);
         }
         if (shotBB.intersectsBox(tank1BB) && shot.tank !== tank1 && godMode === true) {
-            hitPlayerSound(tank1);
+            hitPlayerSound(tank1,soundActive);
             scene.remove(shot.sphere);
             shots.splice(shots.indexOf(shot), 1);
         }
         if (shotBB.intersectsBox(tank2BB) && shot.tank !== tank2) {
             t2_hits += icosaedroActive ? 2 : 1;
-            hitPlayerSound(tank2);
+            hitPlayerSound(tank2,soundActive);
             updateHealthBar('t2', t2_hits);
             scene.remove(shot.sphere);
             shots.splice(shots.indexOf(shot), 1);
         }
         if (shotBB.intersectsBox(tank3BB) && shot.tank !== tank3) {
             t3_hits += icosaedroActive ? 2 : 1;
-            hitPlayerSound(tank3);
+            hitPlayerSound(tank3,soundActive);
             updateHealthBar('t3', t3_hits);
             scene.remove(shot.sphere);
             shots.splice(shots.indexOf(shot), 1);
         }
         if (shotBB.intersectsBox(tank4BB) && shot.tank !== tank4) {
             t4_hits += icosaedroActive ? 2 : 1;
-            hitPlayerSound(tank3);
+            hitPlayerSound(tank4,soundActive);
             updateHealthBar('t4', t3_hits);
             scene.remove(shot.sphere);
             shots.splice(shots.indexOf(shot), 1);
@@ -265,22 +212,27 @@ export function applyPowerUpEffect(powerUp) {
 
 
 // SOUND
+
 export let listener = new THREE.AudioListener();
-
-
-export function music(){
-    const shotSound = new THREE.Audio(listener);
+    export const musicSound = new THREE.Audio(listener);
     const audioLoader = new THREE.AudioLoader();
-    
     audioLoader.load('./sons/music1.mp3', function(buffer) {
-    shotSound.setBuffer(buffer);
-    shotSound.setLoop(true);
-    shotSound.setVolume(0.3);
-    shotSound.play();
-});
-}
+    musicSound.setBuffer(buffer);
+    musicSound.setLoop(true);        
+    musicSound.setVolume(0.3);
+    musicSound.play();
 
-function tankShotSound(){
+});
+
+
+
+
+
+export function tankShotSound(active){
+    if(active === false){
+        return;
+    }
+    else{
     const shotSound = new THREE.Audio(listener);
     const audioLoader = new THREE.AudioLoader();
     
@@ -289,10 +241,14 @@ function tankShotSound(){
     shotSound.setLoop(false);
     shotSound.setVolume(0.5);
     shotSound.play();
-});
+});}
 }
 
-function hitPlayerSound(tank){
+export function hitPlayerSound(tank,active){
+    if(active===false){
+        return;
+    }
+    else{
     const shotSound = new THREE.Audio(listener);
     const p = 0.8;
     const b = 0.4;
@@ -304,7 +260,22 @@ function hitPlayerSound(tank){
     shotSound.setLoop(false);
     shotSound.setVolume(s);
     shotSound.play();
-});
+});}
+}
+
+export function gateSound(active){
+    if(active===false){
+        return;
+    }
+    else{
+    const sound = new THREE.Audio(listener);
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load('./sons/gate-open.mp3', function(buffer) {
+    sound.setBuffer(buffer);
+    sound.setLoop(false);
+    sound.setVolume(s);
+    sound.play();
+});}
 }
 
 tank1.add(listener);

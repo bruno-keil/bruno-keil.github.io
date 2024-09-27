@@ -10,7 +10,6 @@ import { tank1, tank2, tank3 } from './tank.js';
 import { resetl } from './reset.js';
 import { updateBots } from './bot.js';
 import { checkComplete } from './collisions.js';
-import { music } from './shooting.js';
 
 let scene, renderer, camera, material, orbit, light; // Initial variables
 let ambientLight, directionalLight;
@@ -91,6 +90,7 @@ function init(level) {
     });
     createArena(200, scene, level);
     createFloor(200, scene, level);
+
     createHealthBars();
 
     if (level === 1) {
@@ -246,7 +246,7 @@ function onButtonPressed() {
 
 // Function to reset and reinitialize the level
 function resetLevel(level) {
-    selectedLevel = level;
+    selectedLevel = level++;
     resetl(); // Reset game state
 }
 
