@@ -394,6 +394,7 @@ function createFloor(size, scene, level) {
     }
     else if (level === 2) {
         floorGeometry = new THREE.PlaneGeometry(floorSize * 18, floorSize * 12);
+        passageGeometry = new THREE.PlaneGeometry(floorSize * 3, floorSize * 6);
     }
     else if (level === 3) {
         floorGeometry = new THREE.PlaneGeometry(floorSize * 22, floorSize * 14);
@@ -416,6 +417,7 @@ function createFloor(size, scene, level) {
     }
     else if (level === 2) {
         floor.position.set(floorSize * 3, 0, -floorSize + 8.3);
+        pfloor.position.set(floorSize * 13.5, 0, -floorSize * 1);
     }
     else if (level === 3) {
         floor.position.set(floorSize * 3, 0, -floorSize + 8.3);
