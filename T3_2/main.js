@@ -218,8 +218,8 @@ function render() {
     updateBots();
 
     if(checkTankPassage(tank1)){
-        if(selectedLevel==1){selectedLevel=2; resetLevel(selectedLevel);}
-        if(selectedLevel==2){resetLevel(3);}
+        if(selectedLevel===1){resetLevel(2);}
+        else if(selectedLevel===2){resetLevel(3);}
         
     }
 
@@ -333,7 +333,16 @@ function onButtonPressed() {
 
 // Function to reset and reinitialize the level
 function resetLevel(level) {
-    selectedLevel = level;
+    if(level===1){
+        selectedLevel=1;
+    }
+    if(level===2){
+        selectedLevel=2;
+    }
+    if(level===3){
+        selectedLevel=3;
+    }
+
     resetl(); // Reset game state
 }
 

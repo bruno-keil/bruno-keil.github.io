@@ -174,6 +174,8 @@ export function update() {
             scene.remove(tank2BB);
             if (selectedLevel === 1){
                 doorsMove(doors, doorBoxes);
+                
+                
             }
         }
         if (t3_hits >= 10 && t2_hits >= 10 && t4_hits >= 10) {
@@ -181,6 +183,7 @@ export function update() {
         }
         if (t3_hits >= 10 && t2_hits >= 10) {
             doorsMove(doors, doorBoxes);
+            
         }
         if (t1_hits >= 10) {
             resetLevel(selectedLevel);
@@ -273,7 +276,7 @@ export function gateSound(active){
     audioLoader.load('./sons/gate-open.mp3', function(buffer) {
     sound.setBuffer(buffer);
     sound.setLoop(false);
-    sound.setVolume(s);
+    sound.setVolume(0.1);
     sound.play();
 });}
 }
