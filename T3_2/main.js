@@ -219,9 +219,11 @@ function render() {
 
     if(checkTankPassage(tank1)){
         if(selectedLevel === 1){
+            scene.remove(levelcheck);
             resetLevel(2);
         }
         else if(selectedLevel === 2){
+            scene.remove(levelcheck);
             resetLevel(3);
         }
     }
