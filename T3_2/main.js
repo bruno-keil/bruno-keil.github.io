@@ -26,7 +26,7 @@ function isMobile() {
   }
   
   // Uso
-    if (isMobile()==true) {
+    if (isMobile() === true) {
         // Adicionando o joystick
         console.log("Dispositivo mobile detectado");
         const joystick = nipplejs.create({
@@ -218,9 +218,12 @@ function render() {
     updateBots();
 
     if(checkTankPassage(tank1)){
-        if(selectedLevel==1){selectedLevel=2; resetLevel(selectedLevel);}
-        if(selectedLevel==2){resetLevel(3);}
-        
+        if(selectedLevel === 1){
+            resetLevel(2);
+        }
+        else if(selectedLevel === 2){
+            resetLevel(3);
+        }
     }
 
     updateMovingWalls(deltaTime);
