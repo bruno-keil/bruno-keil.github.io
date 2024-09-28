@@ -149,7 +149,7 @@ export function update() {
         if (shotBB.intersectsBox(tank4BB) && shot.tank !== tank4) {
             t4_hits += icosaedroActive ? 2 : 1;
             hitPlayerSound(tank4,soundActive);
-            updateHealthBar('t4', t3_hits);
+            updateHealthBar('t4', t4_hits);
             scene.remove(shot.sphere);
             shots.splice(shots.indexOf(shot), 1);
         }

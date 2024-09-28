@@ -9,7 +9,7 @@ import { scene } from './main.js';
 import { hitPlayerSound,tankShotSound } from './shooting.js';
 import { musicSound } from './shooting.js';
 
-var keyboard = new KeyboardState();
+export var keyboard = new KeyboardState();
 export let isOrbitControlsActive = false;
 export let godMode = false;
 export let initialCameraPosition = new THREE.Vector3(0, 200, 30);
