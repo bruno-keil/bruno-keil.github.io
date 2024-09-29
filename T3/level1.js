@@ -3,9 +3,11 @@ import { tank1, tank2, tank3, tank3BB, tank4, tank4BB } from './tank.js';
 import { cannon } from "./cannon.js";
 import { t1_hits, t2_hits, t3_hits } from "./shooting.js";
 import { selectedLevel } from "./main.js";
+import { applyPowerUpEffect } from "./shooting.js";
+import { rotateObject } from "./main.js";
 
 const textureLoader = new THREE.TextureLoader();
-
+let m;
 const wallTextureLevel1 = textureLoader.load('./textures/m-006.jpg'); // Texture for level 1 walls
 const wallTextureLevel2 = textureLoader.load('./textures/m-008.jpg'); // Texture for level 2 walls
 const floorTextureLevel1 = textureLoader.load('./textures/m-013.jpg'); // Texture for level 1 floor
@@ -27,7 +29,7 @@ let passageWallMaterial = new THREE.MeshLambertMaterial({ map: passageWallTextur
 const doorTexture = textureLoader.load('./textures/m-002.jpg'); // Door texture
 let doorMaterial = new THREE.MeshLambertMaterial({ map: doorTexture });
 
-let m;
+
 const wallBoxes = [];
 const walls = [];
 const doorBoxes = [];
@@ -41,16 +43,21 @@ const levelcheck = [];
 const targetObject = new THREE.Object3D();
 targetObject.position.set(39, 0, -8);
 
+//POWER UP
+let powerUpActive = false;
+let powerUpTimeout;
+let powerUpPositions = []; // Armazena as posições válidas para os power-ups
+
 // Define the matrix
 let matrix = [
     'w w w w w w w w w w w w w w w w w e1 e1 e1 e1',
     'w e e e e e e e w e e e e e e e w e1 e1 e1 e1',
     'w e e e e e e e w e e e e e e e w wp wp wp wp',
-    'w e e e e e e e w e e e e e e e d e1 e1 BB d1',
+    'w e e e e e e e w e e e e e e e d e1 e1 e1 d1',
+    'w e e e e e e e e e e e e e e e d e1 e1 e1 d1',
     'w e e e e e e e e e e e e e e e d e1 e1 BB d1',
-    'w e e e e e e e e e e e e e e e d e1 e1 BB d1',
-    'w e e e e e e e e e e e e e e e d e1 e1 BB d1',
-    'w e e e e e e e e e e e e e e e d e1 e1 BB d1',
+    'w e e e e e e e e e e e e e e e d e1 e1 e1 d1',
+    'w e e e e e e e e e e e e e e e d e1 e1 e1 d1',
     'w e e e e e e e w e e e e e e e w wp wp wp wp',
     'w e t1 e e e e e w e e e e e t2 e w e1 e1 e1 e1',
     'w e e e e e e e w e e e e e e e w e1 e1 e1 e1',
@@ -62,11 +69,11 @@ let matrix1 = [
     'w e e e w e e e e s2 e e e e e e e e w e1 e1 e1 e1',
     'w e t1 e w e e e e e e e e e e e t3 e w e1 e1 e1 e1',
     'w e e s1 w e e e e e e e e e e e e e w wp wp wp wp',
-    'd1 e e e w e e e e e e e e e e e e e d e1 e1 BB d1',
-    'd1 e e e e e e e w1 w1 w1 e e e e e e e d e1 e1 BB d1',
+    'd1 e e e w e e e e e e e e e e e e e d e1 e1 e1 d1',
+    'd1 e e e e e e e w1 w1 w1 e e e e e e e d e1 e1 e1 d1',
     'd1 e e e e e e e w1 c w1 e e e e e e e d e1 e1 BB d1',
-    'd1 e e e e e e e w1 w1 w1 e e e e e e e d e1 e1 BB d1',
-    'd1 e e e e e e e e e e e e e w e e e d e1 e1 BB d1',
+    'd1 e e e e e e e w1 w1 w1 e e e e e e e d e1 e1 e1 d1',
+    'd1 e e e e e e e e e e e e e w e e e d e1 e1 e1 d1',
     'w e e e e e e e e e e e e e w s4 e e w wp wp wp wp',
     'w e e e e e e e e e e e e e w e t2 e w e1 e1 e1 e1',
     'w e e e e e e e e s3 e e e e w e e e w e1 e1 e1 e1',
@@ -176,10 +183,13 @@ for (let i = 0; i < matrix1.length; i++) {
 function createArena(size, scene, level) {
     if (level === 1) {
         m = matrix;
+        
     } else if (level === 2) {
         m = matrix1;
+        
     } else if (level === 3) {
         m = matrix2;
+        
     }
 
     const cubeSize = size / m.length;
@@ -362,6 +372,10 @@ function createArena(size, scene, level) {
     if (level === 1 || level === 2) {
         tank4.clear();
         scene.remove(tank4BB);
+        startPowerUps(scene,level,size); //PW
+    }
+    else if(level===3){
+        startPowerUps(scene,level,size); //PW
     }
 }
 
@@ -381,6 +395,7 @@ function createFloor(size, scene, level) {
     }
     else if (level === 2) {
         floorGeometry = new THREE.PlaneGeometry(floorSize * 18, floorSize * 12);
+        passageGeometry = new THREE.PlaneGeometry(floorSize * 3, floorSize * 6);
     }
     else if (level === 3) {
         floorGeometry = new THREE.PlaneGeometry(floorSize * 22, floorSize * 14);
@@ -403,6 +418,7 @@ function createFloor(size, scene, level) {
     }
     else if (level === 2) {
         floor.position.set(floorSize * 3, 0, -floorSize + 8.3);
+        pfloor.position.set(floorSize * 13.5, 0, -floorSize * 1);
     }
     else if (level === 3) {
         floor.position.set(floorSize * 3, 0, -floorSize + 8.3);
@@ -412,5 +428,102 @@ function createFloor(size, scene, level) {
     scene.add(pfloor);
     scene.add(floor);
 }
+
+//POWER UP FUNCTIONS
+// Função para definir as posições válidas de acordo com a matriz e o nível
+function setPowerUpPositions(matrix,size) {
+    powerUpPositions = [];  // Limpa as posições anteriores
+    const sz = size;  // Defina o tamanho da arena conforme necessário
+    const cubeSize = sz / matrix.length;
+    const halfSize = sz / 2;
+
+    for (let i = 0; i < matrix.length; i++) {
+        let row = matrix[i].split(' ');
+        for (let j = 0; j < row.length; j++) {
+            if (row[j] === 'e') {  // 'e' indica uma célula válida para spawn
+                const x = j * cubeSize - halfSize;
+                const z = i * cubeSize - halfSize;
+                powerUpPositions.push({ x, z });  // Adiciona a posição válida
+            }
+        }
+    }
+}
+
+// Função para criar o power-up em formato de cápsula
+function createCapsulePowerUp() {
+    const capsuleGeometry = new THREE.CapsuleGeometry(3, 5, 8, 16);
+    const capsuleMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+    const capsule = new THREE.Mesh(capsuleGeometry, capsuleMaterial);
+    capsule.position.y = 3;
+    capsule.name = "capsulePowerUp";
+    return capsule;
+}
+
+// Função para criar o power-up em formato de icosaedro
+function createIcosahedronPowerUp() {
+    const icosahedronGeometry = new THREE.IcosahedronGeometry(6, 0);
+    const icosahedronMaterial = new THREE.MeshLambertMaterial({ color: 0xfff000 });
+    const icosahedron = new THREE.Mesh(icosahedronGeometry, icosahedronMaterial);
+    icosahedron.position.y = 5;
+    icosahedron.name = "icosahedronPowerUp";
+    return icosahedron;
+}
+
+
+
+
+
+
+function spawnPowerUp(scene) {
+    if (powerUpActive || powerUpPositions.length === 0) return;  // Impede que dois power-ups sejam spawnados ao mesmo tempo ou se não houver posições válidas
+
+    powerUpActive = true;
+    const powerUpType = Math.random() > 0.5 ? createCapsulePowerUp() : createIcosahedronPowerUp();
+
+    // Escolhe uma posição aleatória das posições válidas
+    const position = powerUpPositions[Math.floor(Math.random() * powerUpPositions.length)];
+    powerUpType.position.set(position.x, 5, position.z);
+    scene.add(powerUpType);
+    rotateObject(powerUpType);
+
+    // Adiciona detecção de interação com o jogador (substitua por sua lógica de detecção de colisão ou interação)
+    const checkPlayerInteraction = setInterval(() => {
+        if (detectPlayerInteraction(powerUpType)) {  // Suponha que essa função detecte interação
+            applyPowerUpEffect(powerUpType);
+            scene.remove(powerUpType);  // Remove o power-up ao ser coletado
+            powerUpActive = false;
+
+            clearInterval(checkPlayerInteraction);  // Para de checar interação
+
+            // Próximo spawn após 10 segundos da coleta
+            powerUpTimeout = setTimeout(() => spawnPowerUp(scene), 10000);
+        }
+    }, 100);  // Verifica a cada 100ms (ajuste conforme necessário)
+}
+
+// Iniciar a função de spawn de power-ups com base no nível
+function startPowerUps(scene, level, size) {
+    let mtx;
+    if(level===1){
+        mtx = matrix;
+    }
+    else if(level===2){
+        mtx = matrix1;
+    }
+    else if(level===3){
+        mtx = matrix2;
+    }
+    setPowerUpPositions(mtx, size);
+    spawnPowerUp(scene);  // Inicializa o primeiro spawn
+}
+
+// Função auxiliar para detectar a interação com o jogador (essa lógica pode ser substituída pela sua lógica de colisão)
+export function detectPlayerInteraction(powerUp) {
+    
+    const playerPosition = tank1.position;  
+    const distance = powerUp.position.distanceTo(playerPosition);
+    return distance < 20;  // Distância de detecção (ajuste conforme necessário)
+}
+
 
 export { createArena, createFloor, wallBoxes, walls, doors, doorBoxes, movingWalls, movingWallBoxes, door1Boxes, doors1, levelcheck};

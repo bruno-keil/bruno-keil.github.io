@@ -1,15 +1,100 @@
 import * as THREE from 'three';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import { TextureLoader } from 'three';
-import { createArena, createFloor, levelcheck, updateMovingWalls } from './level1.js';
+import { createArena, createFloor, levelcheck, updateMovingWalls,wallBoxes } from './level1.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 import { initRenderer, setDefaultMaterial, initDefaultBasicLight } from "../libs/util/util.js";
-import { keyboardUpdate, isOrbitControlsActive, initialCameraPosition, godMode } from './keyboard.js';
-import { t1_hits, update, updateHealthBar } from './shooting.js';
+import { keyboard, keyboardUpdate, isOrbitControlsActive, initialCameraPosition, godMode } from './keyboard.js';
+import { t1_hits, update, updateHealthBar,shoot } from './shooting.js';
 import { tank1, tank2, tank3 } from './tank.js';
 import { resetl } from './reset.js';
 import { updateBots } from './bot.js';
 import { checkComplete } from './collisions.js';
+
+function isMobile() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  
+    // Verifica se o userAgent contém informações comuns de dispositivos móveis
+    if (/android/i.test(userAgent)) {
+      return true;
+    }
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      return true;
+    }
+  
+    return false;
+  }
+  
+  // Uso
+    if (isMobile()==true) {
+        // Adicionando o joystick
+        console.log("Dispositivo mobile detectado");
+        const joystick = nipplejs.create({
+          zone: document.getElementById('joystickZone'),
+          mode: 'static',
+          position: { left: '300px', bottom: '50px' },  // Posição do joystick
+          color: 'blue',
+          size: 150
+        });
+      
+        joystick.on('move', function (evt, data) {
+          if (data.direction) {
+            const angle = data.direction.angle;
+            console.log("Direção:", angle);
+            
+            // Simula pressionamento de teclas baseado no ângulo do joystick
+            switch (angle) {
+              case 'up':
+                if(selectedLevel === 1){
+                    tank1.translateZ(-0.7); }
+                else if (selectedLevel === 2){
+                    tank1.translateZ(-1.05); }
+                else if (selectedLevel === 3){
+                    tank1.translateZ(-1.4);} // Simula pressionar a tecla W
+                break;
+              case 'down':
+                if(selectedLevel === 1){
+                   tank1.translateZ(0.7);
+                    }
+                    else if (selectedLevel === 2){
+                    tank1.translateZ(1.05);  
+                    }
+                    else if (selectedLevel === 3){
+                      tank1.translateZ(1.4); 
+                        } // Simula pressionar a tecla S
+                break;
+              case 'left':
+                tank1.rotateY(THREE.MathUtils.degToRad(5));
+                break;
+              case 'right':
+                tank1.rotateY(THREE.MathUtils.degToRad(-5));
+                break;
+            }
+          }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Função para detectar o toque no botão de tiro
+            const shootButton = document.getElementById('shootButton');
+            
+        
+            // Evento de 'touchstart' para dispositivos móveis
+            shootButton.addEventListener('touchstart', function () {
+                console.log("Disparou com touch!");
+                shoot(tank1,scene,wallBoxes); // Função para o tank atirar
+            });
+        
+            // Fallback para dispositivos desktop
+            shootButton.addEventListener('click', function () {
+                console.log("Disparou com click!");
+                shoot(tank1,scene,wallBoxes); // Função para o tank atirar
+            });
+        });
+  }else {
+    // Oculta o botão de tiro em dispositivos que não são móveis
+    document.getElementById('shootButton').style.display = 'none';
+}
+
 
 let scene, renderer, camera, material, orbit, light; // Initial variables
 let ambientLight, directionalLight;
@@ -133,7 +218,9 @@ function render() {
     updateBots();
 
     if(checkTankPassage(tank1)){
-        resetLevel(selectedLevel);
+        if(selectedLevel===1){resetLevel(2);}
+        else if(selectedLevel===2){resetLevel(3);}
+        
     }
 
     updateMovingWalls(deltaTime);
@@ -244,11 +331,37 @@ function onButtonPressed() {
     init(selectedLevel);
 }
 
-// Function to reset and reinitialize the level
+// Funçao reset de level.
 function resetLevel(level) {
-    selectedLevel = level;
+    if(level===1){
+        selectedLevel=1;
+    }
+    if(level===2){
+        selectedLevel=2;
+    }
+    if(level===3){
+        selectedLevel=3;
+    }
+    
     resetl(); // Reset game state
 }
+
+//ANIMAÇAO DOS POWERUP
+export function rotateObject(object) {
+    // Função de animação
+    function animateRotation() {
+      requestAnimationFrame(animateRotation);
+  
+      // Aplica a rotação nos eixos X, Y e Z
+      object.rotation.x+=0.1;  
+      object.rotation.y +=0.1;
+  
+      renderer.render(scene, camera);
+    }
+  
+    // Inicia a animação de rotação
+    animateRotation();
+  }
 
 // Automatically start the game at the selected level
 document.getElementById('myBtn').addEventListener('click', onButtonPressed);

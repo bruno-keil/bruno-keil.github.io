@@ -6,11 +6,15 @@ import { resetLevel, selectedLevel } from './main.js';
 import { shoot } from './shooting.js';
 import { checkComplete, handleCollision } from './collisions.js';
 import { scene } from './main.js';
+import { hitPlayerSound,tankShotSound } from './shooting.js';
+import { musicSound } from './shooting.js';
 
-var keyboard = new KeyboardState();
+export var keyboard = new KeyboardState();
 export let isOrbitControlsActive = false;
 export let godMode = false;
 export let initialCameraPosition = new THREE.Vector3(0, 200, 30);
+export let soundActive = true;
+
 
 function keyboardUpdate() {
   keyboard.update();
@@ -58,6 +62,18 @@ function keyboardUpdate() {
   // Orbit control
   if (keyboard.down("O")) isOrbitControlsActive = !isOrbitControlsActive;
   if (keyboard.down("G")) godMode = !godMode;
+  if(keyboard.down("P")) {soundActive = !soundActive;
+    if(soundActive===true){
+      musicSound.play();
+    }
+    else{
+      musicSound.stop();
+
+    }
+  }
+  
+    
+  
 
   if (keyboard.down("1")) {
     resetLevel(1); // Reset and switch to level 1

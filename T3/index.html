@@ -39,6 +39,7 @@
    </head>
 
    <body>
+      
       <!-- Import maps polyfill -- Remove this when import maps will be widely supported-->
       <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>  
       <script type="importmap"> 
@@ -46,10 +47,19 @@
       </script> 
 
       <script src="../libs/other/nipplejs.js"></script>
+      
+      <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
+      <div id="joystickZone" style="position: absolute; bottom: 10px; left: 10px; width: 200px; height: 200px;"></div>
+
+      <button id="shootButton" style="position: absolute; bottom: 10px; right: 200px; width: 100px; height: 100px; font-size: 20px;">S</button>
 
       <div id="loading-screen">
          <button id="myBtn">Start Game</button>
+         <p></p>
+         <p style="color: white;">* Aperte 1,2 ou 3 após o Start pra mudar o level(a passagem de lvl apos destruir os tanks esta pulando do 1 pro 3 e não consegui corrigir)</p>
      </div>
+     
+     
       <div id="webgl-output">     
          <script type="module" src="main.js"></script>
       </div>

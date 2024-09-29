@@ -41,7 +41,7 @@ const bot = {
     
         for (let direction of directions) {
             raycasterWalls.set(boundingBoxCenter, direction);
-            raycasterWalls.far = 25;
+            raycasterWalls.far = 10;
     
             const wallIntersects = raycasterWalls.intersectObjects(walls, true);
             if (wallIntersects.length > 0) {
@@ -115,7 +115,7 @@ const bot = {
         }
     
     
-        const tanks = [{ tank: tank1, bb: tank1BB }, { tank: tank2, bb: tank2BB }, { tank: tank3, bb: tank3BB }];
+        const tanks = [{ tank: tank1, bb: tank1BB }, { tank: tank2, bb: tank2BB }, { tank: tank3, bb: tank3BB },{tank: tank4,bb: tank4BB}];
         for (let other of tanks) {
             if (other.tank !== tank && boundingBox.intersectsBox(other.bb)) {
                 tank.position.copy(oldPosition);
